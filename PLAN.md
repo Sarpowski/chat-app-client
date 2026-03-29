@@ -15,6 +15,6 @@
 - [x] Global API error handling
 
 ## P3
-- [ ] User search UX
-- [ ] Smart scroll behavior
-- [ ] Unread indicator and polishing
+- [x] User search UX
+- [x] Smart scroll behavior
+- [x] Unread indicator and polishing
