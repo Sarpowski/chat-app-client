@@ -1,11 +1,11 @@
 # PLAN
 
 ## P1
-- [ ] P1-1 Auth pages (login/register)
-- [ ] P1-2 JWT refresh interceptor
-- [ ] P1-3 Conversation list
-- [ ] P1-4 Chat view real-time messaging
-- [ ] P1-5 Chat request flow
+- [x] P1-1 Auth pages (login/register)
+- [x] P1-2 JWT refresh interceptor
+- [x] P1-3 Conversation list
+- [x] P1-4 Chat view real-time messaging
+- [x] P1-5 Chat request flow
 
 ## P2
 - [ ] Connection state management

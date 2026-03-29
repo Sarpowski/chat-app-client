@@ -6,6 +6,9 @@ import '@/styles.css'
 
 const app = createApp(App)
 
-app.use(createPinia())
+// IMPORTANT: Pinia MUST be installed before router, because the navigation
+// guard inside router/index.ts calls useAuthStore() synchronously.
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.mount('#app')

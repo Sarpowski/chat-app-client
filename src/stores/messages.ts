@@ -44,5 +44,19 @@ export const useMessagesStore = defineStore('messages', () => {
     }
   }
 
-  return { items, loading, error, fetchMessages, addOptimistic, reconcileEcho }
+  const upsertIncoming = (message: MessageDto) => {
+    const existing = items.value.find((entry) => entry.messageId === message.messageId)
+    if (existing) {
+      existing.content = message.content
+      existing.createdAt = message.createdAt
+      existing.senderId = message.senderId
+      existing.pending = false
+      existing.failed = false
+      return
+    }
+
+    items.value.push(message)
+  }
+
+  return { items, loading, error, fetchMessages, addOptimistic, reconcileEcho, upsertIncoming }
 })
