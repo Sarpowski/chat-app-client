@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { acceptChatRequest, getPendingRequests, rejectChatRequest, sendChatRequest } from '@/api/chatRequests'
 import type { ChatRequestDto } from '@/types/chatRequest'
+import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
 export const useChatRequestsStore = defineStore('chatRequests', () => {
   const pending = ref<ChatRequestDto[]>([])
@@ -14,8 +15,8 @@ export const useChatRequestsStore = defineStore('chatRequests', () => {
 
     try {
       pending.value = await getPendingRequests()
-    } catch {
-      error.value = 'Failed to load chat requests'
+    } catch (requestError: unknown) {
+      error.value = resolveApiErrorMessage(requestError, 'chat-requests')
     } finally {
       loading.value = false
     }

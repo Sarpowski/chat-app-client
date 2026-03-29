@@ -8,11 +8,11 @@
 - [x] P1-5 Chat request flow
 
 ## P2
-- [ ] Connection state management
-- [ ] Optimistic rendering hardening
-- [ ] Message history pagination
-- [ ] Logout UX flow
-- [ ] Global API error handling
+- [x] Connection state management
+- [x] Optimistic rendering hardening
+- [x] Message history pagination
+- [x] Logout UX flow
+- [x] Global API error handling
 
 ## P3
 - [ ] User search UX
