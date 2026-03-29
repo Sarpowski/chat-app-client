@@ -8,17 +8,18 @@
       <p v-else-if="store.error">{{ store.error }}</p>
       <EmptyState v-else-if="store.items.length === 0" message="You're not talking to anyone yet." />
       <div v-else class="list">
-        <RouterLink
+        <button
           v-for="conversation in store.items"
           :key="conversation.id"
+          type="button"
           class="conversation-trigger"
-          :to="{ name: 'chat', params: { id: conversation.id } }"
+          @click="openConversation(conversation.id)"
         >
           <ConversationListItem
             :title="resolveOtherParticipantLabel(conversation.user1Id, conversation.user2Id)"
             :created-at-label="new Date(conversation.createdAt).toLocaleString()"
           />
-        </RouterLink>
+        </button>
       </div>
     </section>
 
@@ -31,7 +32,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { searchUsers } from '@/api/users'
 import ConversationListItem from '@/components/ConversationListItem.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -48,6 +49,7 @@ const store = useConversationsStore()
 const authStore = useAuthStore()
 const chatRequests = useChatRequestsStore()
 const toast = useToast()
+const router = useRouter()
 const usersById = ref<Record<string, string>>({})
 
 onMounted(async () => {
@@ -72,6 +74,19 @@ const handleCreateRequest = async (receiverId: string) => {
     toast.notifySuccess('Request sent')
   } catch (error: unknown) {
     toast.notifyError(resolveApiErrorMessage(error, 'chat-requests'))
+  }
+}
+
+const openConversation = async (conversationId: string) => {
+  try {
+    await router.push({ name: 'chat', params: { id: conversationId } })
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message) {
+      toast.notifyError(error.message)
+      return
+    }
+
+    toast.notifyError(resolveApiErrorMessage(error, 'conversations'))
   }
 }
 

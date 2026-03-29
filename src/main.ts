@@ -12,14 +12,14 @@ const bootstrap = async () => {
   app.use(pinia)
 
   const authStore = useAuthStore(pinia)
-  await authStore.bootstrapAuth()
+  try {
+    await authStore.bootstrapAuth()
+  } catch (error: unknown) {
+    console.error('[bootstrap] auth bootstrap failed, continuing with app mount', error)
+  }
 
   app.use(router)
   app.mount('#app')
 }
 
-void bootstrap().catch((error: unknown) => {
-  // Keep the app mount path resilient even if initial bootstrap fails.
-  // eslint-disable-next-line no-console
-  console.error('[bootstrap] failed', error)
-})
+void bootstrap()

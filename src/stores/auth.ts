@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import router from '@/router'
 import { loginRequest, logoutRequest, refreshRequest, registerRequest } from '@/api/auth'
 import { setAccessToken, setAuthHandlers } from '@/api'
 import type { AuthResponse, LoginRequest, RegisterRequest, UserSummary } from '@/types/auth'
@@ -85,7 +84,9 @@ export const useAuthStore = defineStore('auth', () => {
     refreshAccessToken: refresh,
     onRefreshFailed: async () => {
       clearAuth()
-      await router.push({ name: 'login' })
+      if (window.location.pathname !== '/login') {
+        window.location.assign('/login')
+      }
     },
   })
 

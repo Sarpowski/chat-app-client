@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import MessageInput from '@/components/MessageInput.vue'
 import MessageList from '@/components/MessageList.vue'
@@ -54,7 +54,7 @@ const store = useMessagesStore()
 const wsStore = useWebSocketStore()
 const ws = useWebSocket()
 
-const conversationId = String(route.params.id)
+const conversationId = computed(() => String(route.params.id))
 const messagePaneRef = ref<HTMLElement | null>(null)
 const unreadCount = ref(0)
 const autoScrollEnabled = ref(true)
@@ -126,9 +126,9 @@ const handleIncomingMessage = async (message: MessageDto) => {
   unreadCount.value += 1
 }
 
-const subscribeToConversation = () => {
+const subscribeToConversation = (targetConversationId: string) => {
   unsubscribe?.()
-  unsubscribe = ws.subscribe(`/topic/conversation.${conversationId}`, (message) => {
+  unsubscribe = ws.subscribe(`/topic/conversation.${targetConversationId}`, (message) => {
     try {
       const payload = JSON.parse(message.body) as unknown
       if (isMessageDto(payload)) {
@@ -147,22 +147,42 @@ const subscribeToConversation = () => {
 }
 
 onMounted(async () => {
-  await store.fetchMessages(conversationId, 50)
+  await store.fetchMessages(conversationId.value, 50)
   await scrollToBottom()
 
   ws.connect()
   const connected = await ws.awaitConnected()
   if (connected) {
-    subscribeToConversation()
+    subscribeToConversation(conversationId.value)
   }
 
   unwatchConnectionStatus = watch(
     () => wsStore.status,
     async (status, previousStatus) => {
       if (status === 'connected' && previousStatus !== 'connected') {
-        await store.fetchMessages(conversationId, store.currentLimit)
+        await store.fetchMessages(conversationId.value, store.currentLimit)
         await scrollToBottom()
-        subscribeToConversation()
+        subscribeToConversation(conversationId.value)
+      }
+    }
+  )
+
+  watch(
+    conversationId,
+    async (nextConversationId, previousConversationId) => {
+      if (!nextConversationId || nextConversationId === previousConversationId) {
+        return
+      }
+
+      unreadCount.value = 0
+      autoScrollEnabled.value = true
+      await store.fetchMessages(nextConversationId, 50)
+      await scrollToBottom()
+
+      if (wsStore.status === 'connected') {
+        subscribeToConversation(nextConversationId)
+      } else {
+        unsubscribe?.()
       }
     }
   )
@@ -190,7 +210,7 @@ const onLoadMore = async () => {
 const onSend = (content: string) => {
   const messageId = crypto.randomUUID()
   store.addOptimistic({
-    conversationId,
+    conversationId: conversationId.value,
     messageId,
     senderId: authStore.user?.id ?? 'self',
     content,
@@ -199,7 +219,7 @@ const onSend = (content: string) => {
 
   void scrollToBottom()
 
-  const sent = ws.send(`/app/conversation.${conversationId}.send`, {
+  const sent = ws.send(`/app/conversation.${conversationId.value}.send`, {
     content,
     messageId,
   })

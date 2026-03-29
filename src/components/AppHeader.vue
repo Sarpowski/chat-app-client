@@ -32,6 +32,9 @@ const handleLogout = async () => {
 
   logoutLoading.value = true
   try {
+    const { useWebSocket } = await import('@/composables/useWebSocket')
+    const ws = useWebSocket()
+    await ws.disconnect()
     await auth.logout()
     toast.notifySuccess('Logged out')
     await router.push({ name: 'login' })

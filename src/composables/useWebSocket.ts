@@ -7,6 +7,8 @@ let stompClient: Client | null = null
 let reconnectAttempt = 0
 const activeSubscriptions = new Map<string, StompSubscription>()
 let connectionResolvers: Array<() => void> = []
+let shouldReconnect = true
+let reconnectTimeoutId: number | null = null
 
 const baseBackoffMs = 1000
 const maxBackoffMs = 20000
@@ -26,6 +28,7 @@ export function useWebSocket() {
       return
     }
 
+    shouldReconnect = true
     wsStore.setStatus('connecting')
 
     stompClient = new Client({
@@ -47,8 +50,14 @@ export function useWebSocket() {
         wsStore.setStatus('reconnecting')
       },
       onWebSocketClose: () => {
+        if (!shouldReconnect) {
+          wsStore.setStatus('disconnected')
+          return
+        }
+
         wsStore.setStatus('reconnecting')
-        window.setTimeout(() => {
+        reconnectTimeoutId = window.setTimeout(() => {
+          reconnectTimeoutId = null
           stompClient?.activate()
         }, nextBackoffDelay())
       },
@@ -58,6 +67,13 @@ export function useWebSocket() {
   }
 
   const disconnect = async () => {
+    shouldReconnect = false
+
+    if (reconnectTimeoutId !== null) {
+      window.clearTimeout(reconnectTimeoutId)
+      reconnectTimeoutId = null
+    }
+
     activeSubscriptions.forEach((subscription) => subscription.unsubscribe())
     activeSubscriptions.clear()
 
