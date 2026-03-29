@@ -24,22 +24,33 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ChatRequestItem from '@/components/ChatRequestItem.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import { useToast } from '@/composables/useToast'
 import { useChatRequestsStore } from '@/stores/chatRequests'
+import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
 const router = useRouter()
 const store = useChatRequestsStore()
+const toast = useToast()
 
 onMounted(async () => {
   await store.fetchPending()
 })
 
 const onAccept = async (requestId: string) => {
-  const conversationId = await store.acceptRequest(requestId)
-  await router.push({ name: 'chat', params: { id: conversationId } })
+  try {
+    const conversationId = await store.acceptRequest(requestId)
+    await router.push({ name: 'chat', params: { id: conversationId } })
+  } catch (error: unknown) {
+    toast.notifyError(resolveApiErrorMessage(error, 'chat-requests'))
+  }
 }
 
 const onReject = async (requestId: string) => {
-  await store.rejectRequestById(requestId)
+  try {
+    await store.rejectRequestById(requestId)
+  } catch (error: unknown) {
+    toast.notifyError(resolveApiErrorMessage(error, 'chat-requests'))
+  }
 }
 </script>
 

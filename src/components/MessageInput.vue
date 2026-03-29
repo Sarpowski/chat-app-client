@@ -1,7 +1,7 @@
 <template>
   <form class="compose" @submit.prevent="submit">
-    <input v-model="content" class="input" type="text" placeholder="Write a message" />
-    <button class="btn btn-primary" type="submit">Send</button>
+    <input v-model="content" class="input" type="text" placeholder="Write a message" :disabled="disabled" />
+    <button class="btn btn-primary" type="submit" :disabled="disabled">Send</button>
   </form>
 </template>
 
@@ -10,6 +10,10 @@ import { ref } from 'vue'
 
 const emit = defineEmits<{
   (event: 'send', content: string): void
+}>()
+
+defineProps<{
+  disabled?: boolean
 }>()
 
 const content = ref('')

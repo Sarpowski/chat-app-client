@@ -38,6 +38,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useChatRequestsStore } from '@/stores/chatRequests'
 import { useConversationsStore } from '@/stores/conversations'
 import { useToast } from '@/composables/useToast'
+import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
 const router = useRouter()
 const store = useConversationsStore()
@@ -57,8 +58,8 @@ const handleCreateRequest = async (username: string) => {
   try {
     await chatRequests.createRequest(username)
     toast.notifySuccess('Request sent')
-  } catch {
-    toast.notifyError('You already have a pending request with this user')
+  } catch (error: unknown) {
+    toast.notifyError(resolveApiErrorMessage(error, 'chat-requests'))
   }
 }
 

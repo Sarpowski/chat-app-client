@@ -2,10 +2,15 @@
   <main class="page-shell">
     <section class="card panel">
       <h2>Chat</h2>
+      <div class="toolbar">
+        <button class="btn" type="button" :disabled="store.loadingMore || !store.canLoadMore" @click="onLoadMore">
+          {{ store.loadingMore ? 'Loading...' : 'Load more' }}
+        </button>
+      </div>
       <p v-if="store.loading">Loading messages...</p>
       <p v-else-if="store.error">{{ store.error }}</p>
       <MessageList v-else ref="messageListRef" :messages="store.items" />
-      <MessageInput @send="onSend" />
+      <MessageInput :disabled="wsStore.status !== 'connected'" @send="onSend" />
     </section>
   </main>
 </template>
@@ -117,10 +122,18 @@ const onSend = (content: string) => {
 
   void scrollToBottom()
 
-  ws.send(`/app/conversation.${conversationId}.send`, {
+  const sent = ws.send(`/app/conversation.${conversationId}.send`, {
     content,
     messageId,
   })
+
+  if (!sent) {
+    store.markFailed(messageId)
+  }
+}
+
+const onLoadMore = async () => {
+  await store.loadMore(conversationId, 50)
 }
 </script>
 
@@ -129,5 +142,10 @@ const onSend = (content: string) => {
   padding: 1rem;
   display: grid;
   gap: 0.9rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
 }
 </style>

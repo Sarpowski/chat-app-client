@@ -5,22 +5,42 @@
       <nav v-if="auth.isAuthenticated">
         <RouterLink to="/conversations">Conversations</RouterLink>
         <RouterLink to="/requests">Requests</RouterLink>
-        <button class="btn" type="button" @click="handleLogout">Logout</button>
+        <button class="btn" type="button" :disabled="logoutLoading" @click="handleLogout">
+          {{ logoutLoading ? 'Logging out...' : 'Logout' }}
+        </button>
       </nav>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
+import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
 const auth = useAuthStore()
 const router = useRouter()
+const toast = useToast()
+const logoutLoading = ref(false)
 
 const handleLogout = async () => {
-  await auth.logout()
-  await router.push({ name: 'login' })
+  if (logoutLoading.value) {
+    return
+  }
+
+  logoutLoading.value = true
+  try {
+    await auth.logout()
+    toast.notifySuccess('Logged out')
+    await router.push({ name: 'login' })
+  } catch (error: unknown) {
+    toast.notifyError(resolveApiErrorMessage(error, 'auth/logout'))
+    await router.push({ name: 'login' })
+  } finally {
+    logoutLoading.value = false
+  }
 }
 </script>
 

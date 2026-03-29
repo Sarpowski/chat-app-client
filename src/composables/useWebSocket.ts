@@ -109,13 +109,15 @@ export function useWebSocket() {
 
   const send = (destination: string, payload: object) => {
     if (!stompClient || !stompClient.connected) {
-      return
+      return false
     }
 
     stompClient.publish({
       destination,
       body: JSON.stringify(payload),
     })
+
+    return true
   }
 
   return { connect, disconnect, subscribe, awaitConnected, send }

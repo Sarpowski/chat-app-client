@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { getConversations } from '@/api/conversations'
 import type { ConversationDto } from '@/types/conversation'
+import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
 export const useConversationsStore = defineStore('conversations', () => {
   const items = ref<ConversationDto[]>([])
@@ -14,8 +15,8 @@ export const useConversationsStore = defineStore('conversations', () => {
 
     try {
       items.value = await getConversations()
-    } catch {
-      error.value = 'Failed to load conversations'
+    } catch (requestError: unknown) {
+      error.value = resolveApiErrorMessage(requestError, 'conversations')
     } finally {
       loading.value = false
     }
