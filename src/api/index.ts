@@ -55,8 +55,15 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as RetriableRequestConfig | undefined
+    const isRefreshRequest = originalRequest?.url?.includes('/auth/refresh') ?? false
 
-    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry || !authHandlers) {
+    if (
+      !originalRequest ||
+      error.response?.status !== 401 ||
+      originalRequest._retry ||
+      !authHandlers ||
+      isRefreshRequest
+    ) {
       return Promise.reject(error)
     }
 
