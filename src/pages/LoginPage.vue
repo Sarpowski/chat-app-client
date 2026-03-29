@@ -14,13 +14,14 @@
         <p v-if="errorText" class="error">{{ errorText }}</p>
         <button class="btn btn-primary" type="submit" :disabled="loading">Sign in</button>
       </form>
+      <p class="switch-text">Don't have an account? <RouterLink to="/register">Register</RouterLink></p>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { resolveApiErrorMessage } from '@/utils/apiErrors'
 
@@ -75,5 +76,9 @@ const onSubmit = async () => {
 .error {
   margin: 0;
   color: var(--danger);
+}
+
+.switch-text {
+  margin-top: 0.85rem;
 }
 </style>

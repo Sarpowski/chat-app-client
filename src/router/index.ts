@@ -34,7 +34,7 @@ const router = createRouter({
       component: () => import('@/pages/RequestsPage.vue'),
       meta: { requiresAuth: true },
     },
-    { path: '/', redirect: '/conversations' },
+    { path: '/', redirect: '/register' },
     { path: '/:pathMatch(.*)*', redirect: '/conversations' },
   ],
 })

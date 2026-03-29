@@ -9,6 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const user = ref<UserSummary | null>(null)
   const isRefreshing = ref(false)
+  const isBootstrapped = ref(false)
+  let bootstrapPromise: Promise<void> | null = null
   const isAuthenticated = computed(() => token.value !== null)
 
   const setAuth = (payload: AuthResponse) => {
@@ -56,6 +58,29 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const bootstrapAuth = async () => {
+    if (isBootstrapped.value) {
+      return
+    }
+
+    if (bootstrapPromise) {
+      return bootstrapPromise
+    }
+
+    bootstrapPromise = (async () => {
+      try {
+        await refresh()
+      } catch {
+        clearAuth()
+      } finally {
+        isBootstrapped.value = true
+        bootstrapPromise = null
+      }
+    })()
+
+    return bootstrapPromise
+  }
+
   setAuthHandlers({
     refreshAccessToken: refresh,
     onRefreshFailed: async () => {
@@ -68,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     user,
     isRefreshing,
+    isBootstrapped,
     isAuthenticated,
     setAuth,
     clearAuth,
@@ -75,5 +101,6 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     refresh,
     logout,
+    bootstrapAuth,
   }
 })

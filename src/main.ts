@@ -2,13 +2,21 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 import '@/styles.css'
 
-const app = createApp(App)
+const bootstrap = async () => {
+  const app = createApp(App)
+  const pinia = createPinia()
 
-// IMPORTANT: Pinia MUST be installed before router, because the navigation
-// guard inside router/index.ts calls useAuthStore() synchronously.
-const pinia = createPinia()
-app.use(pinia)
-app.use(router)
-app.mount('#app')
+  app.use(pinia)
+
+  const authStore = useAuthStore(pinia)
+  await authStore.bootstrapAuth()
+
+  app.use(router)
+  await router.isReady()
+  app.mount('#app')
+}
+
+void bootstrap()
