@@ -15,8 +15,11 @@ const bootstrap = async () => {
   await authStore.bootstrapAuth()
 
   app.use(router)
-  await router.isReady()
   app.mount('#app')
 }
 
-void bootstrap()
+void bootstrap().catch((error: unknown) => {
+  // Keep the app mount path resilient even if initial bootstrap fails.
+  // eslint-disable-next-line no-console
+  console.error('[bootstrap] failed', error)
+})
