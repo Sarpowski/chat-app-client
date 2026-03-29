@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { isAxiosError } from 'axios'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -51,8 +52,12 @@ const onSubmit = async () => {
   try {
     await authStore.register(form)
     await router.push({ name: 'conversations' })
-  } catch {
-    errorText.value = 'This username is already taken'
+  } catch (error: unknown) {
+    if (isAxiosError(error) && !error.response) {
+      errorText.value = 'Connection failed, please try again'
+    } else {
+      errorText.value = 'This username is already taken'
+    }
   } finally {
     loading.value = false
   }

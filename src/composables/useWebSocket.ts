@@ -6,6 +6,7 @@ import { useWebSocketStore } from '@/stores/websocket'
 let stompClient: Client | null = null
 let reconnectAttempt = 0
 const activeSubscriptions = new Map<string, StompSubscription>()
+let connectionResolvers: Array<() => void> = []
 
 const baseBackoffMs = 1000
 const maxBackoffMs = 20000
@@ -36,6 +37,8 @@ export function useWebSocket() {
       onConnect: () => {
         reconnectAttempt = 0
         wsStore.setStatus('connected')
+        connectionResolvers.forEach((resolve) => resolve())
+        connectionResolvers = []
       },
       onDisconnect: () => {
         wsStore.setStatus('disconnected')
@@ -88,6 +91,22 @@ export function useWebSocket() {
     }
   }
 
+  const awaitConnected = (timeoutMs = 8000) => {
+    if (stompClient?.connected) {
+      return Promise.resolve(true)
+    }
+
+    return new Promise<boolean>((resolve) => {
+      const onConnected = () => resolve(true)
+      connectionResolvers.push(onConnected)
+
+      window.setTimeout(() => {
+        connectionResolvers = connectionResolvers.filter((candidate) => candidate !== onConnected)
+        resolve(Boolean(stompClient?.connected))
+      }, timeoutMs)
+    })
+  }
+
   const send = (destination: string, payload: object) => {
     if (!stompClient || !stompClient.connected) {
       return
@@ -99,5 +118,5 @@ export function useWebSocket() {
     })
   }
 
-  return { connect, disconnect, subscribe, send }
+  return { connect, disconnect, subscribe, awaitConnected, send }
 }
