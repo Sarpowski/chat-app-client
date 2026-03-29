@@ -1,0 +1,77 @@
+:root {
+  --bg: #f4efe4;
+  --surface: #fffaf0;
+  --surface-strong: #ffe9c7;
+  --text: #1e1a16;
+  --muted: #6a5f53;
+  --accent: #d46b2b;
+  --accent-strong: #a94f18;
+  --danger: #b42318;
+  --ok: #05603a;
+  --ring: rgba(212, 107, 43, 0.35);
+  --radius: 14px;
+  --shadow: 0 10px 24px rgba(30, 26, 22, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 211, 150, 0.35), transparent 45%),
+    radial-gradient(circle at 88% 85%, rgba(212, 107, 43, 0.16), transparent 40%), var(--bg);
+}
+
+a {
+  color: inherit;
+}
+
+.page-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(30, 26, 22, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.65rem 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-strong);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid rgba(30, 26, 22, 0.2);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+}
+
+.input:focus {
+  outline: 3px solid var(--ring);
+  border-color: var(--accent);
+}
