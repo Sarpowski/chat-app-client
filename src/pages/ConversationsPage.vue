@@ -2,7 +2,9 @@
   <main class="page-shell page-grid">
     <section class="card panel">
       <h2>Conversations</h2>
-      <p v-if="store.loading">Loading conversations...</p>
+      <div v-if="store.loading" class="list">
+        <SkeletonConversationItem v-for="index in 4" :key="index" />
+      </div>
       <p v-else-if="store.error">{{ store.error }}</p>
       <EmptyState v-else-if="store.items.length === 0" message="You're not talking to anyone yet." />
       <div v-else class="list">
@@ -34,6 +36,7 @@ import { useRouter } from 'vue-router'
 import ConversationListItem from '@/components/ConversationListItem.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import NewChatForm from '@/components/NewChatForm.vue'
+import SkeletonConversationItem from '@/components/SkeletonConversationItem.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useChatRequestsStore } from '@/stores/chatRequests'
 import { useConversationsStore } from '@/stores/conversations'
